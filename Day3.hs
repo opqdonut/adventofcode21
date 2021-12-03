@@ -44,20 +44,18 @@ part1 i =
           transpose i
   in bin x * bin (invert x)
 
-shave flip bs i =
-  let cands = map (!!i) bs
-      [(0,zeros),(1,ones)] = freqs cands
-      target
-        | zeros>ones = 0
-        | otherwise = 1
-      target'
-        | flip = inv target
-        | otherwise = target
-  in filter ((==target').(!!i)) bs
+which bits
+  | zeros>ones = 0
+  | otherwise = 1
+  where [(0,zeros),(1,ones)] = freqs bits
 
-whittle flip bs = go 0 bs
-  where go i [b] = b
-        go i bs = go (i+1) (shave flip bs i)
+whittle :: Bool -> [[Int]] -> [Int]
+whittle _ [x] = x
+whittle flip bits =
+  let f = if flip then inv else id
+      target = f $ which (map head bits)
+      rest = [bs | (b:bs) <- bits, b == target]
+  in target : whittle flip rest
 
 part2 i =
   let o2 = whittle False i
