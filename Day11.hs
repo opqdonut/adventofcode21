@@ -39,17 +39,12 @@ incAll = M.map succ
 
 step m = runFlashes (incAll m)
 
-run :: Chart -> Int -> Int
-run m steps = go m 0 0
-  where go m i f
-          | i==steps = f
-          | otherwise = let (f',m') = step m in go m' (i+1) (f+f')
+run :: Chart -> [Int]
+run m = tail (map fst $ iterate (step.snd) (0,m))
 
 input = parse <$> readFile "input.11"
 example = parse <$> readFile "example.11"
 
-part1 m = run m 100
+part1 = sum . take 100 . run
 
-part2 m = go 1 m
-  where go i m = case step m of (100,_) -> i
-                                (_,m) -> go (i+1) m
+part2 m = head [i | (i,100) <- zip [1..] (run m)]
