@@ -40,7 +40,7 @@ incAll = M.map succ
 step m = runFlashes (incAll m)
 
 run :: Chart -> [Int]
-run m = tail (map fst $ iterate (step.snd) (0,m))
+run m = unfoldr (Just . step) m
 
 input = parse <$> readFile "input.11"
 example = parse <$> readFile "example.11"
