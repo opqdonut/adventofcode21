@@ -11,11 +11,9 @@ parse i = M.fromList [((x,y),digitToInt d) | (y,l) <- zip [0..] (lines i), (x,d)
 
 unparse m = unlines [[intToDigit (m M.! (x,y)) | x <- [0..9]] | y <- [0..9]]
 
-neighbours (x,y) = filter p [(x-1,y-1),(x-1,y),(x-1,y+1)
-                            ,(x,y-1),(x,y),(x,y+1)
-                            ,(x+1,y-1),(x+1,y),(x+1,y+1)]
-  where p (x,y) = q x && q y
-        q x = 0 <= x && x <= 9
+neighbours (x,y) = [(x-1,y-1),(x-1,y),(x-1,y+1)
+                   ,(x,y-1),(x,y),(x,y+1)
+                   ,(x+1,y-1),(x+1,y),(x+1,y+1)]
 
 flashes :: Chart -> [(Int,Int)]
 flashes m = [(x,y) | ((x,y),d) <- M.assocs m, d>9]
@@ -51,7 +49,6 @@ input = parse <$> readFile "input.11"
 example = parse <$> readFile "example.11"
 
 part1 m = run m 100
-
 
 part2 m = go 1 m
   where go i m = case step m of (100,_) -> i
