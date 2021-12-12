@@ -14,7 +14,6 @@ graph ps = M.fromList [(fst (head es),map snd es) | es <- groupBy ((==)`on`fst) 
   where allEdges = ps ++ map (\(x,y) -> (y,x)) ps
 
 input = graph . parse <$> readFile "input.12"
-
 example1 = graph . parse <$> readFile "example1.12"
 example2 = graph . parse <$> readFile "example2.12"
 
@@ -25,9 +24,7 @@ buildPaths g end (v:vs)
   | otherwise = concatMap (\v' -> buildPaths g end (v':v:vs)) nexts
   where nexts = g M.! v \\ filter isSmall vs
 
-allPaths g = buildPaths g "end" ["start"]
-
-part1 g = length $ allPaths g
+part1 g = length $ buildPaths g "end" ["start"]
 
 prune old new
   | twice = new \\ smalls
