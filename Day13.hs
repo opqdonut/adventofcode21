@@ -10,7 +10,6 @@ parse i = (S.fromList $ map parseCoord coords, map parseInstr instrs)
         parseInstr s = case break (=='=') s of
           ("fold along x", _:x) -> Left (read x)
           ("fold along y", _:y) -> Right (read y)
-          a -> error (show a)
 
 input = parse <$> readFile "input.13"
 
