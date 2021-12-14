@@ -29,6 +29,7 @@ part1 (formula,rules) = maximum fs - minimum fs
 
 type Freqs = (M.Map Char Integer)
 
+-- count characters inserted between a and b in n steps
 count :: [(String,Char)] -> Int -> String -> State (M.Map (Int,String) Freqs) Freqs
 count rules 0 [a,b] = return M.empty
 count rules n [a,b] = do
@@ -43,6 +44,7 @@ count rules n [a,b] = do
                       modify (M.insert (n,[a,b]) res)
                       return res
 
+-- count all characters when starting from s after n steps
 countAll rules n s = do
   insertions <- mapM (\(a,b) -> count rules n [a,b]) (zip s (tail s))
   let base = M.fromListWith (+) (zip s (repeat 1))
