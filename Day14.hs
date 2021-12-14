@@ -27,6 +27,11 @@ part1 (formula,rules) = maximum fs - minimum fs
   where final = iterate (replace rules) formula !! 10
         fs = freqs final
 
+p1 (formula,rules) n = maximum fs - minimum fs
+  where final = iterate (replace rules) formula !! n
+        fs = freqs final
+
+
 count :: [(String,Char)] -> Int -> String -> State (M.Map (Int,String) (M.Map Char Integer)) (M.Map Char Integer)
 count rules 0 [a,b] = return M.empty
 count rules n [a,b] = do
@@ -44,11 +49,13 @@ count rules n [a,b] = do
 
 countAll rules n s = do
   insertions <- mapM (\(a,b) -> count rules n [a,b]) (zip s (tail s))
-  let base = M.fromList (zip s (repeat 1))
+  let base = M.fromListWith (+) (zip s (repeat 1))
   return $ M.unionsWith (+) (base:insertions)
 
-
--- right result for example, part1 and somebody elses input, but not for my input :(
 part2 (formula,rules) = maximum fs - minimum fs
-  where final = evalState (countAll rules 10 formula) M.empty
+  where final = evalState (countAll rules 40 formula) M.empty
+        fs = M.elems final
+
+p2 (formula,rules) n = maximum fs - minimum fs
+  where final = evalState (countAll rules n formula) M.empty
         fs = M.elems final
