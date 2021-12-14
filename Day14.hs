@@ -27,19 +27,21 @@ part1 (formula,rules) = maximum fs - minimum fs
   where final = iterate (replace rules) formula !! 10
         fs = freqs final
 
-count :: [(String,Char)] -> Int -> String -> State (M.Map (Int,String) (M.Map Char Integer)) (M.Map Char Integer)
+type Freqs = (M.Map Char Integer)
+
+count :: [(String,Char)] -> Int -> String -> State (M.Map (Int,String) Freqs) Freqs
 count rules 0 [a,b] = return M.empty
 count rules n [a,b] = do
-  memo <- get
-  case M.lookup (n,[a,b]) memo of
+  query <- gets (M.lookup (n,[a,b]))
+  case query of
     Just res -> return res
     Nothing -> case lookup [a,b] rules
-      of Just c -> do left <- count rules (n-1) [a,c]
+      of Nothing -> return M.empty
+         Just c -> do left <- count rules (n-1) [a,c]
                       right <- count rules (n-1) [c,b]
                       let res = M.unionsWith (+) [left,right,M.singleton c 1]
                       modify (M.insert (n,[a,b]) res)
                       return res
-         Nothing -> return M.empty
 
 countAll rules n s = do
   insertions <- mapM (\(a,b) -> count rules n [a,b]) (zip s (tail s))
