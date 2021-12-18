@@ -21,27 +21,22 @@ parseAll = map parse . lines
 unparse (N i) = show i
 unparse (P l r) = "[" ++ unparse l ++ "," ++ unparse r ++ "]"
 
-mid (_,m,_) = m
-
 explode :: P -> Maybe P
 explode p = mid <$> explode' 0 p
+  where mid (_,m,_) = m
 
 explode' :: Int -> P -> Maybe (Maybe Int, P, Maybe Int)
 explode' _ (N _) = Nothing
 explode' 4 (P (N l) (N r)) = Just (Just l,N 0,Just r)
-explode' i (P l r) = (reconstructL <$> explode' (i+1) l <*> Just r)
+explode' i (P l r) = (reconstructL r <$> explode' (i+1) l)
                      <|>
-                     (reconstructR <$> Just l <*> explode' (i+1) r)
+                     (reconstructR l <$> explode' (i+1) r)
 
-reconstructL :: (Maybe Int, P, Maybe Int) -> P -> (Maybe Int, P, Maybe Int)
-reconstructL (mi,l,mj) r = (mi,P l (addLeft mj r),Nothing)
+reconstructL :: P -> (Maybe Int, P, Maybe Int) -> (Maybe Int, P, Maybe Int)
+reconstructL r (mi,l,mj) = (mi,P l (addLeft mj r),Nothing)
 
 reconstructR :: P -> (Maybe Int, P, Maybe Int) -> (Maybe Int, P, Maybe Int)
 reconstructR l (mi,r,mj) = (Nothing,P (addRight mi l) r,mj)
-
-flop :: P -> P
-flop (P l r) = P (flop r) (flop l)
-flop n = n
 
 addLeft :: Maybe Int -> P -> P
 addLeft Nothing p = p
@@ -49,8 +44,11 @@ addLeft (Just i) (N n) = N (n+i)
 addLeft mi (P l r) = P (addLeft mi l) r
 
 addRight :: Maybe Int -> P -> P
-addRight mi p = flop (addLeft mi (flop p))
+addRight Nothing p = p
+addRight (Just i) (N n) = N (n+i)
+addRight mi (P l r) = P l (addRight mi r)
 
+split :: P -> Maybe P
 split (N i)
   | i >= 10 = Just $ P (N l) (N (i-l))
   | otherwise = Nothing
