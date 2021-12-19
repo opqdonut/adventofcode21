@@ -68,9 +68,14 @@ example = parse <$> readFile "example.19"
 rotationsMatching a1 a2 b1 b2 = [f | f <- rotations, delta == dist (f b1) (f b2)]
   where delta = dist a1 a2
 
--- the translation that maps pb to pa
-findTranslation pa pb = add trans
-  where trans = (add (neg pb) pa)
+-- which transforms map {b1,b2} to {a1,a2}?
+transformsMatching a1 a2 b1 b2 =
+  [ add t . r
+  | r <- rotationsMatching a1 a2 b1 b2
+  -- since rotations match, we can find the corresponding pair with min
+  , let a = min a1 a2
+        b = min (r b1) (r b2)
+        t = add (neg b) a]
 
 -- do two scanners overlap enough?
 overlaps :: Scanner -> Scanner -> Bool
@@ -79,19 +84,12 @@ overlaps sa sb = length (intersect sa sb) >= 12
 -- find the transforms f mapping {pb1,pb2} to {pa1,pa2}
 -- such that f sb overlaps with sa
 matching :: Coord -> Coord -> Coord -> Coord -> Scanner -> Scanner -> [Coord -> Coord]
-matching pa1 pa2 pb1 pb2 sa sb = rets
-  where rots = rotationsMatching pa1 pa2 pb1 pb2
-        rets = [ trans . rot
-               | rot <- rots
-               , let pb1' = rot pb1
-               , let pb2' = rot pb2
-               , let sb' = map rot sb
-               , pb' <- [pb1',pb2']
-               , let trans = findTranslation pa1 pb'
-               , let sb'' = map trans sb'
-               , overlaps sa sb'' ]
+matching pa1 pa2 pb1 pb2 sa sb =
+  [ f
+  | f <- transformsMatching pa1 pa2 pb1 pb2
+  , overlaps sa (map f sb) ]
 
--- Classify pairs of points in a scanner by theyr regDist
+-- Classify pairs of points in a scanner by their regDist
 -- NB! assuming regDist values are unique. Works out in practice but is a bit ugly
 regDists :: Scanner -> M.Map Coord (Coord,Coord)
 regDists scanner = M.fromList [ (regDist u v,(u,v))
