@@ -47,22 +47,22 @@ rotations = [rotation facing up | facing <- directions, up <- directions, dot up
 rotationsMatching a1 a2 b1 b2 = [f | f <- rotations, delta == dist (f b1) (f b2)]
   where delta = dist a1 a2
 
-fitTrans pa pb sa sb = sbFixed
+fitTrans pa pb sa sb = add trans
   where trans = (add (neg pb) pa)
-        sbFixed = map (add trans) sb
 
 fits sa sb = length (intersect sa sb) >= 12
 
 fit pa1 pa2 pb1 pb2 sa sb = rets
   where rots = rotationsMatching pa1 pa2 pb1 pb2
-        rets = [ fitted
+        rets = [ trans . rot
                | rot <- rots
                , let pb1' = rot pb1
                , let pb2' = rot pb2
                , let sb' = map rot sb
                , pb' <- [pb1',pb2']
-               , let fitted = fitTrans pa1 pb' sa sb'
-               , fits sa fitted ]
+               , let trans = fitTrans pa1 pb' sa sb'
+               , let sb'' = map trans sb'
+               , fits sa sb'' ]
 
 {-
 *Day19> e <- example
@@ -83,12 +83,18 @@ findFit sa sb = listToMaybe rets
   where ra = regDists sa
         rb = regDists sb
         candidates = M.intersectionWith (,) ra rb
-        rets = [union sa sb' | ((pa1,pa2),(pb1,pb2)) <- M.elems candidates
-                             , sb' <- fit pa1 pa2 pb1 pb2 sa sb]
+        rets = [f | ((pa1,pa2),(pb1,pb2)) <- M.elems candidates
+                  , f <- fit pa1 pa2 pb1 pb2 sa sb]
 
-fitAll state [] = state
-fitAll state (scanner:scanners) = case findFit state scanner of
-                                    Just state' -> fitAll state' scanners
-                                    Nothing -> fitAll state (scanners++[scanner])
+fitAll origins beacons [] = (origins,beacons)
+fitAll origins beacons (scanner:scanners) =
+  case findFit beacons scanner of
+    Just f -> fitAll (origins++[f (0,0,0)]) (union beacons (map f scanner)) scanners
+    Nothing -> fitAll origins beacons (scanners++[scanner])
 
-part1 (s:ss) = fitAll s ss
+part1 (s:ss) = length . snd $ fitAll [(0,0,0)] s ss
+
+manhattan u v = dot (1,1,1) $ dist u v
+
+part2 (s:ss) = maximum [manhattan o1 o2 | o1 <- origins, o2 <- origins]
+  where (origins,_) = fitAll [(0,0,0)] s ss
