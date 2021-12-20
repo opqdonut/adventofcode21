@@ -15,14 +15,6 @@ parse i = (rules,chart)
 input = parse <$> readFile "input.20"
 example = parse <$> readFile "example.20"
 
-visualize chart = unlines [[if chart M.! (x,y) then '#' else '.' | x <- [xmin..xmax]] | y <- [ymin..ymax]]
-  where ((x0,y0),_) = M.findMin chart
-        ((x1,y1),_) = M.findMax chart
-        xmin = x0 - 1
-        xmax = x1 + 1
-        ymin = y0 - 1
-        ymax = y1 + 1
-
 bitsToInt = foldl' (\v b -> 2 * v + if b then 1 else 0) 0
 
 nextVal rules chart bg (x,y) = rules M.! bitsToInt bits
