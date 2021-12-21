@@ -28,27 +28,10 @@ part1 p1 p2 = go p1 0 p2 0 0 0
                          p' = (mod (p+n-1) 10)+1
                      in (p',d)
 
-
+-- memoize the frequencies of sums of three dice throws
 freqs = map (\xs -> (head xs, length xs)) . group . sort $ [a+b+c | a <- [1..3], b <- [1..3], c <- [1..3]]
 
-sum2 (!a,!b) (!c,!d) = (a+c,b+d)
-scale2 !x (!a,!b) = (x*a,x*b)
-
 move p num = (mod (p+num-1) 10)+1
-
-pbay p1 p2 = go True p1 0 p2 0
-  where go True !p1 !p1score !p2 !p2score
-          | p1score >= 21 = (1,0)
-          | otherwise = foldl1' sum2
-                        [scale2 n (go False p1' (p1score+p1') p2 p2score)
-                        |(d,n) <- freqs
-                        ,let p1' = move p1 d]
-        go False !p1 !p1score !p2 !p2score
-          | p2score >= 21 = (0,1)
-          | otherwise = foldl1' sum2
-                        [scale2 n (go True p1 p1score p2' (p2score+p2'))
-                        |(d,n) <- freqs
-                        ,let p2' = move p2 d]
 
 data Player = P1 | P2
   deriving (Show,Eq,Ord)
