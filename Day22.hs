@@ -3,7 +3,6 @@ module Day22 where
 import Data.List
 import qualified Data.Set as S
 import Data.List.Split
-import Control.DeepSeq
 
 type Coord = (Int,Int,Int)
 type Range = (Int,Int)
@@ -80,13 +79,13 @@ cubeIntersects a b = not $ null $ cubeIntersect a b
 
 rmCube :: Cube -> [Cube] -> [Cube]
 rmCube off [] = []
-rmCube off (c:cs) = force $ cubeDiff c off ++ rmCube off cs
+rmCube off (c:cs) = cubeDiff c off ++ rmCube off cs
 
 addCube :: Cube -> [Cube] -> [Cube]
-addCube new cs = force $ go [new] hits ++ cs
+addCube new cs = go [new] hits ++ cs
   where hits = filter (cubeIntersects new) cs  -- crucial optimization!
         go news [] = news
-        go news (h:hs) = go (concatMap (\new -> cubeDiff new h) news) hs
+        go news (h:hs) = go (concatMap (\piece -> cubeDiff piece h) news) hs
 
 applyRule :: [Cube] -> Rule -> [Cube]
 applyRule cs (True,c) = addCube c cs
