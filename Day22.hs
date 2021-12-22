@@ -76,14 +76,17 @@ cubeIntersect (ax,ay,az) (bx,by,bz) =
   , y <- rangeIntersect ay by
   , z <- rangeIntersect az bz]
 
+cubeIntersects a b = not $ null $ cubeIntersect a b
+
 rmCube :: Cube -> [Cube] -> [Cube]
 rmCube off [] = []
 rmCube off (c:cs) = force $ cubeDiff c off ++ rmCube off cs
 
 addCube :: Cube -> [Cube] -> [Cube]
-addCube new cs = force $ go [new] cs
-  where go news [] = news
-        go news (c:cs) = c:go (concatMap (\new -> cubeDiff new c) news) cs
+addCube new cs = force $ go [new] hits ++ cs
+  where hits = filter (cubeIntersects new) cs  -- crucial optimization!
+        go news [] = news
+        go news (h:hs) = go (concatMap (\new -> cubeDiff new h) news) hs
 
 applyRule :: [Cube] -> Rule -> [Cube]
 applyRule cs (True,c) = addCube c cs
