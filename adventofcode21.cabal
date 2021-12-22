@@ -3,5 +3,5 @@ name: adventofcode21
 version: 0.0
 
 library
-  build-depends: base, split
+  build-depends: base, split, deepseq
   default-language: Haskell2010
