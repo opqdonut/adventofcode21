@@ -92,26 +92,12 @@ applyRule :: [Cube] -> Rule -> [Cube]
 applyRule cs (True,c) = addCube c cs
 applyRule cs (False,c) = rmCube c cs
 
--- make it faster by delaying addCube operations until the end
-applyRule' :: [Cube] -> Rule -> [Cube]
-applyRule' cs (True,c) = c:cs
-applyRule' cs (False,c) = rmCube c cs
-
-applyAll :: [Rule] -> [Cube]
-applyAll rs = finish $ foldl' applyRule' [] rs
-  where finish cs = foldl' (flip addCube) [] cs
-
 part1' rs = sum $ map cubeSize $ concatMap (cubeIntersect region) $ foldl applyRule [] rs
   where region = ((-50,50),(-50,50),(-50,50))
 
-part1'' rs = sum $ map cubeSize $ concatMap (cubeIntersect region) $ applyAll rs
-  where region = ((-50,50),(-50,50),(-50,50))
-
-part2 rs = sum $ map cubeSize $ foldr (flip applyRule) [] (reverse rs)
-
-part2' rs = sum $ map cubeSize $ applyAll rs
+part2 rs = sum $ map cubeSize $ foldl applyRule [] (reverse rs)
 
 -- stack ghc -- --make -main-is Day22 -O2 Day22.hs
 main = do
   i <- input
-  print $ part2' i
+  print $ part2 i
