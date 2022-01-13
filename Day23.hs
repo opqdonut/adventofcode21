@@ -48,7 +48,7 @@ room (x,y) = y>0
 
 hallway (x,y) = y==0 && not (elem x [2,4,6,8])
 
-maxY = 2
+maxY = 4 --2 for part1
 
 type GameState = M.Map Coord Color
 
@@ -87,8 +87,8 @@ moveIn state (u,col)
                   | v <- reachableHomes state (u,col) ]
 
 finished state ((x,0),col) = False
-finished state ((x,2),col) = home ((x,2),col)
-finished state ((x,1),col) = home ((x,1),col) && M.lookup (x,2) state == Just col
+finished state ((x,y),col) = home ((x,y),col) && all ok [(x,y') | y' <- [y+1..maxY]]
+  where ok c = M.lookup c state == Just col
 
 move :: GameState -> (Coord,Color) -> [((Coord,Color),Int)]
 move state (u,col)
@@ -166,7 +166,39 @@ simple = build
          ,(B,(6,1)),(C,(6,2))
          ,(A,(8,1)),(D,(8,2))]
 
+-- part2
+input2 :: GameState
+input2 = build
+         [(A,(2,1)),(D,(2,2)),(D,(2,3)),(C,(2,4))
+         ,(D,(4,1)),(C,(4,2)),(B,(4,3)),(D,(4,4))
+         ,(C,(6,1)),(B,(6,2)),(A,(6,3)),(B,(6,4))
+         ,(A,(8,1)),(A,(8,2)),(C,(8,3)),(B,(8,4))]
 
-part1 = minSol
+example2 :: GameState
+example2 = build
+          [(B,(2,1)),(D,(2,2)),(D,(2,3)),(A,(2,4))
+          ,(C,(4,1)),(C,(4,2)),(B,(4,3)),(D,(4,4))
+          ,(B,(6,1)),(B,(6,2)),(A,(6,3)),(C,(6,4))
+          ,(D,(8,1)),(A,(8,2)),(C,(8,3)),(A,(8,4))]
 
-main = print $ part1 input
+simple2 :: GameState
+simple2 = build [(B,(2,1)),(A,(2,2)),(A,(2,3)),(A,(2,4))
+                ,(C,(4,1)),(D,(4,2)),(B,(4,3)),(B,(4,4))
+                ,(B,(6,1)),(C,(6,2)),(C,(6,3)),(C,(6,4))
+                ,(A,(8,1)),(D,(8,2)),(D,(8,3)),(D,(8,4))]
+
+swap2 :: GameState
+swap2 = build [(B,(2,1)),(B,(2,2)),(B,(2,3)),(B,(2,4))
+              ,(A,(4,1)),(A,(4,2)),(A,(4,3)),(A,(4,4))
+              ,(C,(6,1)),(C,(6,2)),(C,(6,3)),(C,(6,4))
+              ,(D,(8,1)),(D,(8,2)),(D,(8,3)),(D,(8,4))]
+
+swap4 :: GameState
+swap4 = build [(B,(2,1)),(B,(2,2)),(B,(2,3)),(B,(2,4))
+              ,(A,(4,1)),(A,(4,2)),(A,(4,3)),(A,(4,4))
+              ,(D,(6,1)),(D,(6,2)),(D,(6,3)),(D,(6,4))
+              ,(C,(8,1)),(C,(8,2)),(C,(8,3)),(C,(8,4))]
+
+part2 = minSol
+
+main = print $ part2 input2
