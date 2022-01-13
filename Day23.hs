@@ -27,13 +27,6 @@ neigh (x,0)
 neigh (x,1) = [(x,0),(x,2)]
 neigh (x,2) = [(x,1)]
 
-allMoves :: (Coord -> Bool) -> Coord -> [Coord]
-allMoves occupied x = S.toList $ S.delete x $ visit (S.empty) x
-  where visit visited c =
-          let nexts = filter (not.occupied) . filter (\x -> S.notMember x visited) $ neigh c
-          in foldl' visit (S.insert c visited) nexts
-          --c:concatMap (visit (S.insert c visited)) nexts
-
 manhattan (x0,y0) (x1,y1) = abs (x0-x1) + abs (y0-y1)
 
 data Color = A|B|C|D
@@ -55,13 +48,34 @@ room (x,y) = y>0
 
 hallway (x,y) = y==0 && not (elem x [2,4,6,8])
 
+maxY = 2
+
 type GameState = M.Map Coord Color
+
+reachableHallways :: GameState -> Coord -> [Coord]
+reachableHallways state (x,y)
+  | gotOut = walk x (-1) ++ walk x 1
+  | otherwise = []
+  where free c = not (M.member c state)
+        gotOut = all free [(x,y') | y' <- [1..y-1]]
+        walk x delta
+          | x < 0 || x > 10 = []
+          | not (free (x,0)) = []
+          | not (hallway (x,0)) = walk (x+delta) delta
+          | otherwise = (x,0):walk (x+delta) delta
 
 moveOut :: GameState -> (Coord,Color) -> [((Coord,Color),Int)]
 moveOut state (u,col) = [ ((v,col),cost col * manhattan u v)
-                        | v <- allMoves occupied u
-                        , hallway v ]
-  where occupied x = M.member x state
+                        | v <- reachableHallways state u ]
+
+reachableHomes state ((x,0),col)
+  | gotIn = takeWhile free [(home,y') | y' <- [1..maxY]]
+  | otherwise = []
+  where free c = not (M.member c state)
+        home = homeCol col
+        delta = signum (home - x)
+        range a b = [min a b..max a b]
+        gotIn = all free [(x',0) | x' <- range (x+delta) home]
 
 moveIn :: GameState -> (Coord,Color) -> [((Coord,Color),Int)]
 moveIn state (u,col)
@@ -70,8 +84,7 @@ moveIn state (u,col)
     where notFree = or [home (v,col) | (v,col') <- M.assocs state, col/=col']
           occupied x = M.member x state
           homes = [ ((v,col),cost col * manhattan u v)
-                  | v <- allMoves occupied u
-                  , home (v,col) ]
+                  | v <- reachableHomes state (u,col) ]
 
 finished state ((x,0),col) = False
 finished state ((x,2),col) = home ((x,2),col)
