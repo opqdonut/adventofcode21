@@ -1,0 +1,294 @@
+### digit1 free
+### push inp+7
+inp w
+#mul x 0
+#add x z
+#mod x 26
+#div z 1
+#add x 12 #x=12
+#eql x w  #x=0
+eql x 0   #x=1
+#mul y 0
+add y 25 #y=25
+mul y x  #y=25
+add y 1  #y=26
+#mul z y
+mul y 0  #y=0
+add y w  #y=inp
+add y 7  #y=inp+7
+mul y x  #noop
+add z y  #z=inp+7
+
+### digit2 free
+### push inp+8
+inp w
+mul x 0
+add x z
+mod x 26 #x = mod(z,26)
+#div z 1
+add x 12 #x = mod(z,26)+12
+eql x w #x=0
+eql x 0 #x=1
+mul y 0 #y=0
+add y 25 #y=25
+mul y x #y=25
+add y 1 #y=26
+mul z y #z*=26
+mul y 0
+add y w #y=inp
+add y 8 #y=inp+8
+mul y x #noop
+add z y #z+=inp+8
+
+### digit3 free
+### push inp+2
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 13 # x=mod(z,26)+13 = prev inp + 13
+
+eql x w #x=0
+eql x 0 #x=1
+mul y 0
+add y 25
+mul y x
+add y 1 #y=26
+mul z y #z*=26
+mul y 0
+add y w
+add y 2 #y=inp+2
+mul y x #noop
+add z y #z+=inp+2
+
+### digit4 free
+### push inp+11
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 12 # x= mod(z,26)+12 = prev inp + 12
+
+eql x w #x=0
+eql x 0 #x=1
+mul y 0
+add y 25
+mul y x
+add y 1 #y=26
+mul z y #z*=26
+mul y 0
+add y w
+add y 11 #y=inp+11
+mul y x #noop
+add z y #z+=inp+11
+
+### digit5 check
+### pop if inp==head-3==prev+8
+inp w
+mul x 0
+add x z
+mod x 26 # x=mod(z,26)
+div z 26 # z/=26
+add x -3 # x=mod(z,26)-3 = head-3 = prev+11-3 = prev+8
+eql x w #x=0/1
+eql x 0 #x=1/0
+mul y 0
+add y 25
+mul y x
+add y 1 #y=25*{0,1}+1
+mul z y #z*=y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y #z+=(inp+6)*{0,1}
+
+### digit6 free
+### push inp+12
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 10 #x=mod(z,26)+10
+eql x w #x=0
+eql x 0 #x=1
+mul y 0
+add y 25
+mul y x
+add y 1 #y=26
+mul z y #z*=26
+mul y 0
+add y w
+add y 12 #y=inp+12
+mul y x
+add z y #z+=inp+12
+
+### digit7 free
+### push inp+14
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 14 #x=mod(z,26)+14
+eql x w #x=0
+eql x 0 #x=1
+mul y 0
+add y 25
+mul y x
+add y 1 #y=26
+mul z y #z*=26
+mul y 0
+add y w
+add y 14
+mul y x
+add z y #z+=inp+14
+
+### digit8 check
+### pop if inp==head-16=prev-2
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -16 # x=mod(z,26)-16 = head-16 = prev+14-16 = prev-2
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 13
+mul y x
+add z y #z+=inp+13
+
+### digit9 free
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 12 # x=mod(z,26)+12 = previnp+13+12
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 15
+mul y x
+add z y #z+=inp+15
+
+### digit10 check
+### pop if inp=head-8=prev+7
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -8 # x=head+8=prev+15-8=prev+7
+eql x w # want x==w => x=1
+eql x 0 # x=0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 10
+mul y x # y=0
+add z y # z+=0
+
+### digit11 check
+### pop if inp=head-12=digit6+12-12=digit6
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -12 #x=head-12
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x # y=0
+add z y # noop
+
+### digit12 check
+### pop if inp=head-7=digit3+2-7=digit3-5
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -7 #x=head-7
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 10
+mul y x #y=0
+add z y #noop
+
+### digit13 check
+### pop if inp=head-6=digit2+8-6=digit2+2
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -6 #x=head-6
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 8
+mul y x #y=0
+add z y #noop
+
+### digit14 check
+### pop if inp==head-11==digit1+7-11=digit1-4
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -11 #x=head-11
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 5
+mul y x
+add z y
